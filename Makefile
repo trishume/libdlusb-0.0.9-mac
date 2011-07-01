@@ -1,0 +1,187 @@
+# Generated automatically from Makefile.in by configure.
+# $Id: Makefile.in,v 1.18 2005/10/06 20:04:46 geni Exp $
+#
+# Copyright (c) 2005 Huidae Cho
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in the
+#    documentation and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+# OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+# OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+# SUCH DAMAGE.
+
+OBJS=session.o tucp.o comm.o misc.o memory.o \
+     contact.o note.o appt.o schedule.o occasion.o chrono.o timer.o hidapimac/hid.o
+
+# install directory
+PREFIX=/usr/local
+
+# use libusb library
+OBJS+=usb_libusb.o
+CFLAGS+=-Wall -DUSB_LIBUSB
+LIBS=-Wl,-framework -Wl,IOKit -Wl,-framework -Wl,CoreFoundation -Wl,-prebind
+# use usbhid library
+#OBJS+=usb_usbhid.o
+#CFLAGS+=-Wall -DUSB_USBHID
+#LIBS=-lusbhid
+
+# build static library
+LIBS+=libdlusb.a
+# build shared library
+#LIBS+=-L. -ldlusb
+
+TARGETS=hidapi_mac libdlusb.a sysinfo_dlusb init_dlusb lock_dlusb dump_dlusb load_dlusb \
+	tod_dlusb option_dlusb \
+	print_contact add_contact del_contact \
+	print_note add_note del_note \
+	print_appt add_appt del_appt \
+	print_alarm add_alarm del_alarm \
+	print_schedule add_schedule del_schedule \
+	print_occasion add_occasion del_occasion \
+	print_chrono add_chrono del_chrono \
+	print_countdn add_countdn del_countdn \
+	print_interval add_interval del_interval
+
+all: $(TARGETS)
+
+clean:
+	rm -f *.o
+	cd hidapimac; make clean
+
+install: all
+	@test -d $(PREFIX)/bin || mkdir -p $(PREFIX)/bin
+	@cp $(TARGETS) *.sh $(PREFIX)/bin
+	@test -f $(HOME)/.dlusbrc || cp dlusbrc $(HOME)/.dlusbrc
+	@echo
+	@echo "Don't forget to edit ~/.dlusbrc!"
+	@echo
+
+# build static library
+libdlusb.a: $(OBJS)
+	$(AR) r libdlusb.a $(OBJS)
+
+# build shared library
+#CFLAGS+=-fpic
+##CFLAGS+=-fPIC # for large library
+#libdlusb.so: $(OBJS)
+#	$(CC) -Wall -shared -o libdlusb.so $(OBJS)
+
+hidapi_mac:
+	cd hidapimac; make
+
+sysinfo_dlusb: sysinfo_dlusb.o libdlusb.a
+	$(CC) -Wall -o sysinfo_dlusb sysinfo_dlusb.o $(LIBS)
+
+init_dlusb: init_dlusb.o libdlusb.a
+	$(CC) -Wall -o init_dlusb init_dlusb.o $(LIBS)
+
+lock_dlusb: lock_dlusb.o libdlusb.a
+	$(CC) -Wall -o lock_dlusb lock_dlusb.o $(LIBS)
+
+dump_dlusb: dump_dlusb.o libdlusb.a
+	$(CC) -Wall -o dump_dlusb dump_dlusb.o $(LIBS)
+
+load_dlusb: load_dlusb.o libdlusb.a
+	$(CC) -Wall -o load_dlusb load_dlusb.o $(LIBS)
+
+tod_dlusb: tod_dlusb.o libdlusb.a
+	$(CC) -Wall -o tod_dlusb tod_dlusb.o $(LIBS)
+
+option_dlusb: option_dlusb.o libdlusb.a
+	$(CC) -Wall -o option_dlusb option_dlusb.o $(LIBS)
+
+print_contact: print_contact.o libdlusb.a
+	$(CC) -Wall -o print_contact print_contact.o $(LIBS)
+
+add_contact: add_contact.o libdlusb.a
+	$(CC) -Wall -o add_contact add_contact.o $(LIBS)
+
+del_contact: del_contact.o libdlusb.a
+	$(CC) -Wall -o del_contact del_contact.o $(LIBS)
+
+print_note: print_note.o libdlusb.a
+	$(CC) -Wall -o print_note print_note.o $(LIBS)
+
+add_note: add_note.o libdlusb.a
+	$(CC) -Wall -o add_note add_note.o $(LIBS)
+
+del_note: del_note.o libdlusb.a
+	$(CC) -Wall -o del_note del_note.o $(LIBS)
+
+print_appt: print_appt.o libdlusb.a
+	$(CC) -Wall -o print_appt print_appt.o $(LIBS)
+
+add_appt: add_appt.o libdlusb.a
+	$(CC) -Wall -o add_appt add_appt.o $(LIBS)
+
+del_appt: del_appt.o libdlusb.a
+	$(CC) -Wall -o del_appt del_appt.o $(LIBS)
+
+print_alarm: print_appt
+	cp print_appt print_alarm
+
+add_alarm: add_appt
+	cp add_appt add_alarm
+
+del_alarm: del_appt
+	cp del_appt del_alarm
+
+print_schedule: print_schedule.o libdlusb.a
+	$(CC) -Wall -o print_schedule print_schedule.o $(LIBS)
+
+add_schedule: add_schedule.o libdlusb.a
+	$(CC) -Wall -o add_schedule add_schedule.o $(LIBS)
+
+del_schedule: del_schedule.o libdlusb.a
+	$(CC) -Wall -o del_schedule del_schedule.o $(LIBS)
+
+print_occasion: print_occasion.o libdlusb.a
+	$(CC) -Wall -o print_occasion print_occasion.o $(LIBS)
+
+add_occasion: add_occasion.o libdlusb.a
+	$(CC) -Wall -o add_occasion add_occasion.o $(LIBS)
+
+del_occasion: del_occasion.o libdlusb.a
+	$(CC) -Wall -o del_occasion del_occasion.o $(LIBS)
+
+print_chrono: print_chrono.o libdlusb.a
+	$(CC) -Wall -o print_chrono print_chrono.o $(LIBS)
+
+add_chrono: add_chrono.o libdlusb.a
+	$(CC) -Wall -o add_chrono add_chrono.o $(LIBS)
+
+del_chrono: del_chrono.o libdlusb.a
+	$(CC) -Wall -o del_chrono del_chrono.o $(LIBS)
+
+print_countdn: print_countdn.o libdlusb.a
+	$(CC) -Wall -o print_countdn print_countdn.o $(LIBS)
+
+add_countdn: add_countdn.o libdlusb.a
+	$(CC) -Wall -o add_countdn add_countdn.o $(LIBS)
+
+del_countdn: del_countdn.o libdlusb.a
+	$(CC) -Wall -o del_countdn del_countdn.o $(LIBS)
+
+print_interval: print_countdn
+	cp print_countdn print_interval
+
+add_interval: add_countdn
+	cp add_countdn add_interval
+
+del_interval: del_countdn
+	cp del_countdn del_interval
